@@ -17,7 +17,12 @@ public class SecondScreenViewModel extends ViewModel {
     //Gets the database instance
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     //Gets a reference to that instance
-    DatabaseReference myRef = database.getReference();
+    DatabaseReference myRef = database.getReference("numbers");
+
+
+    public SecondScreenViewModel() {
+        super();
+    }
     private int count = 0;
     //Special data type that has a built in interface that allows for onChange updates
     public MutableLiveData<String> mutatedCount = new MutableLiveData<>("Null");
@@ -25,9 +30,16 @@ public class SecondScreenViewModel extends ViewModel {
         return count;
     }
 
+    public void resetCount() {
+        count = 0;
+    }
+
     public void incrementCount() {
         count++;
-        myRef.setValue(count*2);
+    }
+
+    public void sendCount() {
+        myRef.push().setValue(count);
     }
 
 
@@ -37,8 +49,14 @@ public class SecondScreenViewModel extends ViewModel {
             //Does something whenever data is changed
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Integer value = dataSnapshot.getValue(Integer.class);
-                mutatedCount.setValue(value.toString());
+                int sum = 0;
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    Integer value = childSnapshot.getValue(Integer.class);
+                    if (value != null) {
+                            sum += value;
+                    }
+                }
+                mutatedCount.setValue(String.valueOf(sum));
             }
 
             //Does something when something goes wrong

@@ -71,6 +71,17 @@ public class SecondScreenFragment extends Fragment {
             count.setText(String.valueOf(countViewModel.getCount()));
         });
 
+        Button resetCount = view.findViewById(R.id.resetButton);
+        resetCount.setOnClickListener(v -> {
+            countViewModel.resetCount();
+            count.setText(String.valueOf(countViewModel.getCount()));
+        });
+
+        Button sendToDB = view.findViewById(R.id.addToSum);
+        sendToDB.setOnClickListener(v -> {
+            countViewModel.sendCount();
+        });
+
 
     }
 
