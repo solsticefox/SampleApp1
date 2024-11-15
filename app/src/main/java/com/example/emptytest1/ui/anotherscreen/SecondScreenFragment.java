@@ -17,14 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.toolbox.StringRequest;
 import com.example.emptytest1.R;
+import com.example.emptytest1.ui.CloudFunctionCaller;
 
-import com.android.volley.*;
-
-import org.json.JSONObject;
 
 public class SecondScreenFragment extends Fragment {
 
@@ -51,6 +47,7 @@ public class SecondScreenFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        countViewModel.isPrime();
         //References a button by searching for the element with the correct ID
         Button navigateButton = view.findViewById(R.id.secondToHomeButton);
         //Runs the lambda whenever the button is pressed, typically is an anonymous class, but lambda makes it simpler
@@ -62,6 +59,27 @@ public class SecondScreenFragment extends Fragment {
         TextView count = view.findViewById(R.id.count);
         count.setText(String.valueOf(countViewModel.getCount()));
         TextView mutated = view.findViewById(R.id.mutatedCount);
+
+        TextView isPrimeText = view.findViewById(R.id.isPrimeText);
+
+        Button isPrimeButton = view.findViewById(R.id.GetPrimeButton);
+        isPrimeButton.setOnClickListener(v -> {
+            countViewModel.isPrime();
+        });
+        countViewModel.isPrime.observe(getViewLifecycleOwner(), isPrime -> {
+            isPrimeText.setText(String.valueOf(isPrime));
+        });
+
+        Button removeDBbutton = view.findViewById(R.id.removeDBbutton);
+        removeDBbutton.setOnClickListener(v -> {
+            countViewModel.removeFromDB();
+        });
+
+        Button resetDBbutton = view.findViewById(R.id.ResetDBbutton);
+        resetDBbutton.setOnClickListener(v -> {
+            countViewModel.removeAll();
+        });
+
         //Attaches the listener
         countViewModel.getMutatedCount();
         //Changes something whenever the live data is changed
@@ -72,6 +90,21 @@ public class SecondScreenFragment extends Fragment {
             }
         });
 
+        TextView mostComNum = view.findViewById(R.id.MostCommonNum);
+        TextView mostComFre = view.findViewById(R.id.MostCommonFrequency);
+        countViewModel.mostCommon();
+        countViewModel.mostCommonNum.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                mostComNum.setText("Number: " + s);
+            }
+        });
+        countViewModel.getMostCommonNumFre.observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                mostComFre.setText("Frequency: " + s);
+            }
+        });
         Button increaseCount = view.findViewById(R.id.countIncreaser);
         increaseCount.setOnClickListener(v -> {
             countViewModel.incrementCount();

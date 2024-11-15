@@ -62,3 +62,48 @@ export const processNumbersFromDatabase = functions.https.
       });
     }
   });
+
+export const updateGreatestOccurrence = functions.database
+  .onValueWritten("/numbers", async (event) => {
+    // Get all data under the "numbers" node
+    const numbersSnapshot = await admin.database().ref("/numbers")
+      .once("value");
+    const numbers = numbersSnapshot.val();
+
+    // If no data found, exit the function
+    if (!numbers) {
+      console.log("No numbers found in the database.");
+      return null;
+    }
+
+    const numberFrequency: { [key: string]: number } = {};
+
+    // Count the frequency of each number
+    for (const key in numbers) {
+      if (Object.prototype.hasOwnProperty.call(numbers, key)) {
+        const number = numbers[key];
+        numberFrequency[number] = (numberFrequency[number] || 0) + 1;
+      }
+    }
+
+    // Find the number with the highest frequency
+    let mostFrequentNumber = null;
+    let highestFrequency = 0;
+    for (const num in numberFrequency) {
+      if (numberFrequency[num] > highestFrequency) {
+        mostFrequentNumber = num;
+        highestFrequency = numberFrequency[num];
+      }
+    }
+
+    // Write the result to the "GreatestOccurence" node
+    await admin.database().ref("/GreatestOccurence").set({
+      number: mostFrequentNumber,
+      frequency: highestFrequency,
+    });
+
+    console.log(`Most frequent number: ${mostFrequentNumber} 
+      with frequency: ${highestFrequency}`);
+
+    return null; // End the function
+  });
